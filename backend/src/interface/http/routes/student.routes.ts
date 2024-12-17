@@ -14,13 +14,17 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     console.log('saving file ' + file.originalname);
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     const ext = path.extname(file.originalname);
     cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-  }
+  },
 });
 
-const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (
+  req: Express.Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
   // Aceita apenas imagens
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
@@ -34,18 +38,40 @@ const upload = multer({ storage, fileFilter });
 const studentRouter = Router();
 
 // Rota para listar alunos
-studentRouter.get('/', ensureAuthenticated, asyncHandler(StudentController.list));
+studentRouter.get(
+  '/',
+  ensureAuthenticated,
+  asyncHandler(StudentController.list)
+);
 
 // Rota para criar aluno (com upload de imagem)
-studentRouter.post('/', ensureAuthenticated, upload.single('image'), asyncHandler(StudentController.create));
+studentRouter.post(
+  '/',
+  ensureAuthenticated,
+  upload.single('image'),
+  asyncHandler(StudentController.create)
+);
 
 // Rota para editar aluno (com upload de imagem opcional)
-studentRouter.put('/:id', ensureAuthenticated, upload.single('image'), asyncHandler(StudentController.edit));
+studentRouter.put(
+  '/:id',
+  ensureAuthenticated,
+  upload.single('image'),
+  asyncHandler(StudentController.edit)
+);
 
 // Rota para visualizar aluno
-studentRouter.get('/:id', ensureAuthenticated, asyncHandler(StudentController.view));
+studentRouter.get(
+  '/:id',
+  ensureAuthenticated,
+  asyncHandler(StudentController.view)
+);
 
 // Rota para deletar aluno
-studentRouter.delete('/:id', ensureAuthenticated, asyncHandler(StudentController.delete));
+studentRouter.delete(
+  '/:id',
+  ensureAuthenticated,
+  asyncHandler(StudentController.delete)
+);
 
 export default studentRouter;

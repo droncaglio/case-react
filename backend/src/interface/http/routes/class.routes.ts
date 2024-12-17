@@ -6,6 +6,10 @@ import { ensureAuthenticated } from '../middlewares/ensureAuthenticated';
 const classRouter = Router();
 
 // Rota protegida para listar classes
-classRouter.get('/', ensureAuthenticated, asyncHandler(ClassController.list));
+classRouter.get(
+  '/',
+  asyncHandler(ensureAuthenticated),
+  asyncHandler(ClassController.list)
+);
 
 export default classRouter;
