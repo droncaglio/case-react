@@ -1,6 +1,6 @@
 // src/usecases/class/ListClassesUseCase.ts
 import { IClassRepository } from '../../domain/repositories/IClassRepository';
-import Class, { ClassAttributes } from '../../database/models/Class';
+import { ClassAttributes } from '../../database/models/Class';
 
 export class ListClassesUseCase {
   constructor(private classRepository: IClassRepository) {}

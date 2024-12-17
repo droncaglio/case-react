@@ -1,27 +1,27 @@
 // src/interface/http/middlewares/ensureAuthenticated.ts
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../../../infra/services/AuthService';
+import { HttpError } from '../errors/HttpError';
 
-export function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
+export async function ensureAuthenticated(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   const authHeader = req.headers.authorization;
-  
+
+  console.log('ensureAuthenticated');
+
   if (!authHeader) {
-    const error: any = new Error('Token not provided');
-    error.status = 401;
-    throw error;
+    throw new HttpError('Token not provided', 401);
   }
 
   const [, token] = authHeader.split(' ');
-  const decoded = AuthService.verifyToken(token);
+  const decoded = await AuthService.verifyToken(token);
 
   if (!decoded) {
-    const error: any = new Error('Invalid token');
-    error.status = 401;
-    throw error;
+    throw new HttpError('Invalid token', 401);
   }
-
-  // Adicionar informações decodificadas ao request (se necessário)
-  (req as any).user = decoded;
 
   return next();
 }

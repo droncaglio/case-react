@@ -13,9 +13,4 @@ Class.associate();
 Student.associate();
 // User não tem associações, então não precisa de chamada no momento
 
-export {
-  sequelize,
-  Class,
-  Student,
-  User
-};
+export { sequelize, Class, Student, User };

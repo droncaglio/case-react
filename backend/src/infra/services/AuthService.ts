@@ -8,11 +8,11 @@ export class AuthService {
     return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
   }
 
-  static verifyToken(token: string): any {
+  static verifyToken(token: string): string | object | null {
     try {
       const decoded = jwt.verify(token, JWT_SECRET);
       return decoded;
-    } catch (error) {
+    } catch {
       return null;
     }
   }

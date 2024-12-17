@@ -1,5 +1,9 @@
 // src/usecases/student/ListStudentsUseCase.ts
-import { IStudentRepository, ListStudentsInput, ListStudentsOutput } from '../../domain/repositories/IStudentRepository';
+import {
+  IStudentRepository,
+  ListStudentsInput,
+  ListStudentsOutput,
+} from '../../domain/repositories/IStudentRepository';
 
 export class ListStudentsUseCase {
   constructor(private studentRepository: IStudentRepository) {}

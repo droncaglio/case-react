@@ -1,17 +1,25 @@
 // src/interface/http/controllers/StudentController.ts
 import { Request, Response, NextFunction } from 'express';
 import { ListStudentsUseCase } from '../../../usecases/student/ListStudentsUseCase';
-import { CreateStudentUseCase, CreateStudentInput } from '../../../usecases/student/CreateStudentUseCase';
-import { EditStudentUseCase, EditStudentInput } from '../../../usecases/student/EditStudentUseCase';
+import { CreateStudentUseCase } from '../../../usecases/student/CreateStudentUseCase';
+import { EditStudentUseCase } from '../../../usecases/student/EditStudentUseCase';
 import { ViewStudentUseCase } from '../../../usecases/student/ViewStudentUseCase';
 import { DeleteStudentUseCase } from '../../../usecases/student/DeleteStudentUseCase';
 import { SequelizeStudentRepository } from '../../../infra/db/repositories/SequelizeStudentRepository';
 import { ImageService } from '../../../infra/services/ImageService';
-import { editStudentSchema, createStudentSchema } from '../validators/studentValidator';
+import {
+  editStudentSchema,
+  createStudentSchema,
+} from '../validators/studentValidator';
 import { HttpError } from '../errors/HttpError';
+import * as Yup from 'yup';
 
 export class StudentController {
-  static list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  static list = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const { q, page } = req.query;
 
@@ -24,9 +32,11 @@ export class StudentController {
       });
 
       // Mapeamento dos alunos para incluir a URL da imagem
-      const dataWithImageUrl = result.data.map(student => {
+      const dataWithImageUrl = result.data.map((student) => {
         const studentData = student.toJSON();
-        const imageUrl = student.imagePath ? ImageService.getImageUrl(student.imagePath) : null;
+        const imageUrl = student.imagePath
+          ? ImageService.getImageUrl(student.imagePath)
+          : null;
         return {
           ...studentData,
           imageUrl,
@@ -44,7 +54,11 @@ export class StudentController {
     }
   };
 
-  static create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  static create = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       // Validação de entrada
       await createStudentSchema.validate(req.body, { abortEarly: false });
@@ -67,19 +81,26 @@ export class StudentController {
       });
 
       // Adicionar imageUrl na resposta
-      const imageUrl = student.imagePath ? ImageService.getImageUrl(student.imagePath) : null;
+      const imageUrl = student.imagePath
+        ? ImageService.getImageUrl(student.imagePath)
+        : null;
 
       res.status(201).json({ data: { ...student.toJSON(), imageUrl } });
-    } catch (error: any) {
+    } catch (error) {
       // Tratar erro de duplicidade de email
-      if (error.name === 'SequelizeUniqueConstraintError') {
+      if (
+        error instanceof Error &&
+        error.name === 'SequelizeUniqueConstraintError'
+      ) {
         const uniqueError = new HttpError('Email must be unique', 400);
         return next(uniqueError);
       }
 
       // Tratar erros de validação do Yup
-      if (error.name === 'ValidationError') {
-        const errors = error.inner.map((err: any) => err.message);
+      if (error instanceof Error && error.name === 'ValidationError') {
+        const errors = (error as Yup.ValidationError).inner.map(
+          (err: Yup.ValidationError) => err.message
+        );
         const validationError = new HttpError(errors.join(', '), 400);
         return next(validationError);
       }
@@ -88,7 +109,11 @@ export class StudentController {
     }
   };
 
-  static edit = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  static edit = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       // Validação de entrada
       await editStudentSchema.validate(req.body, { abortEarly: false });
@@ -134,21 +159,26 @@ export class StudentController {
       }
 
       // Adicionar imageUrl na resposta
-      const imageUrl = updatedStudent.imagePath ? ImageService.getImageUrl(updatedStudent.imagePath) : null;
+      const imageUrl = updatedStudent.imagePath
+        ? ImageService.getImageUrl(updatedStudent.imagePath)
+        : null;
 
       res.status(200).json({ data: { ...updatedStudent.toJSON(), imageUrl } });
-
-
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Tratar erro de duplicidade de email
-      if (error.name === 'SequelizeUniqueConstraintError') {
+      if (
+        error instanceof Error &&
+        error.name === 'SequelizeUniqueConstraintError'
+      ) {
         const uniqueError = new HttpError('Email must be unique', 400);
         return next(uniqueError);
       }
 
       // Tratar erros de validação do Yup
-      if (error.name === 'ValidationError') {
-        const errors = error.inner.map((err: any) => err.message);
+      if (error instanceof Error && error.name === 'ValidationError') {
+        const errors = (error as Yup.ValidationError).inner.map(
+          (err: Yup.ValidationError) => err.message
+        );
         const validationError = new HttpError(errors.join(', '), 400);
         return next(validationError);
       }
@@ -157,7 +187,11 @@ export class StudentController {
     }
   };
 
-  static view = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  static view = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const id = parseInt(req.params.id, 10);
       if (isNaN(id)) {
@@ -174,7 +208,9 @@ export class StudentController {
       }
 
       // Adicionar imageUrl na resposta
-      const imageUrl = student.imagePath ? ImageService.getImageUrl(student.imagePath) : null;
+      const imageUrl = student.imagePath
+        ? ImageService.getImageUrl(student.imagePath)
+        : null;
 
       res.status(200).json({ data: { ...student.toJSON(), imageUrl } });
     } catch (error) {
@@ -182,7 +218,11 @@ export class StudentController {
     }
   };
 
-  static delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  static delete = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const id = parseInt(req.params.id, 10);
       if (isNaN(id)) {

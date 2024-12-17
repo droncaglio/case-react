@@ -2,6 +2,9 @@ import 'dotenv/config';
 import { app } from './interface/http/server';
 import { sequelize } from './database/models'; // Importa os modelos e inicializa
 import { ImageService } from './infra/services/ImageService';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 

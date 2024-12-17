@@ -1,4 +1,10 @@
-import { Model, DataTypes, Optional, Sequelize, BelongsToGetAssociationMixin } from 'sequelize';
+import {
+  Model,
+  DataTypes,
+  Optional,
+  Sequelize,
+  BelongsToGetAssociationMixin,
+} from 'sequelize';
 import Class from './Class';
 
 export interface StudentAttributes {
@@ -12,9 +18,15 @@ export interface StudentAttributes {
   deletedAt?: Date | null;
 }
 
-interface StudentCreationAttributes extends Optional<StudentAttributes, 'id' | 'imagePath' | 'deletedAt'> {}
+type StudentCreationAttributes = Optional<
+  StudentAttributes,
+  'id' | 'imagePath' | 'deletedAt'
+>;
 
-class Student extends Model<StudentAttributes, StudentCreationAttributes> implements StudentAttributes {
+class Student
+  extends Model<StudentAttributes, StudentCreationAttributes>
+  implements StudentAttributes
+{
   public id!: number;
   public name!: string;
   public email!: string;
@@ -27,53 +39,56 @@ class Student extends Model<StudentAttributes, StudentCreationAttributes> implem
   public getClass!: BelongsToGetAssociationMixin<Class>;
 
   static initModel(sequelize: Sequelize): void {
-    Student.init({
-      id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      name: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-        validate: {
-          len: {
-            args: [1, 100],
-            msg: 'Name must be between 1 and 100 characters.'
-          }
-        }
-      },
-      email: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-        unique: true,
-        validate: {
-          isEmail: true,
-        }
-      },
-      classId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Classes',
-          key: 'id'
+    Student.init(
+      {
+        id: {
+          type: DataTypes.INTEGER,
+          autoIncrement: true,
+          primaryKey: true,
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'RESTRICT'
+        name: {
+          type: DataTypes.STRING(100),
+          allowNull: false,
+          validate: {
+            len: {
+              args: [1, 100],
+              msg: 'Name must be between 1 and 100 characters.',
+            },
+          },
+        },
+        email: {
+          type: DataTypes.STRING(255),
+          allowNull: false,
+          unique: true,
+          validate: {
+            isEmail: true,
+          },
+        },
+        classId: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'Classes',
+            key: 'id',
+          },
+          onUpdate: 'CASCADE',
+          onDelete: 'RESTRICT',
+        },
+        imagePath: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE,
       },
-      imagePath: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      createdAt: DataTypes.DATE,
-      updatedAt: DataTypes.DATE,
-      deletedAt: DataTypes.DATE
-    }, {
-      sequelize,
-      tableName: 'Students',
-      timestamps: true,
-      paranoid: true, // habilita soft delete, usando a coluna deletedAt
-    });
+      {
+        sequelize,
+        tableName: 'Students',
+        timestamps: true,
+        paranoid: true, // habilita soft delete, usando a coluna deletedAt
+      }
+    );
   }
 
   static associate() {
