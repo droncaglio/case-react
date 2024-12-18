@@ -68,7 +68,7 @@ Para utilizar a aplicação como administrador, utilize as seguintes credenciais
 1. **Clone o repositório:**
 
    ```bash
-   git clone https://github.com/seu-usuario/seu-repositorio.git
+   git clone https://github.com/droncaglio/case-react.git
    cd seu-repositorio/backend
    ```
 
@@ -86,7 +86,7 @@ Para utilizar a aplicação como administrador, utilize as seguintes credenciais
    DB_NAME=case_react_node
    DB_DIALECT=postgres
 
-   JWT_SECRET=97675ea3-df29-49dc-9bcd-a711bcee394b
+   JWT_SECRET=chave-aleatoria
    ```
 
 3. **Inicie os containers Docker para PostgreSQL e Redis:**
