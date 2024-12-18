@@ -35,6 +35,33 @@ const fileFilter = (
 
 const upload = multer({ storage, fileFilter });
 
+const uploadCsvPath = path.join(__dirname, '../../../../uploads/csv');
+
+// Configuração do Multer para upload de arquivos CSV
+const storageCSV = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadCsvPath); // Defina o caminho para a pasta segura
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  },
+});
+
+const csvFileFilter = (
+  req: Express.Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
+  if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Somente arquivos CSV são permitidos'));
+  }
+};
+
+const uploadCSV = multer({ storage: storageCSV, fileFilter: csvFileFilter });
+
 const studentRouter = Router();
 
 // Rota para listar alunos
@@ -72,6 +99,14 @@ studentRouter.delete(
   '/:id',
   ensureAuthenticated,
   asyncHandler(StudentController.delete)
+);
+
+// rota para importar alunos
+studentRouter.post(
+  '/import',
+  ensureAuthenticated,
+  uploadCSV.single('file'),
+  asyncHandler(StudentController.import)
 );
 
 export default studentRouter;

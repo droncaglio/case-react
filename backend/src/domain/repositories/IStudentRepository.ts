@@ -30,4 +30,9 @@ export interface IStudentRepository {
     >
   ): Promise<Student | null>;
   softDelete(id: number): Promise<boolean>;
+  createMany(
+    students: Array<
+      Omit<StudentAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
+    >
+  ): Promise<Student[]>;
 }

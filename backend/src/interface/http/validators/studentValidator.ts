@@ -13,8 +13,6 @@ export const createStudentSchema = Yup.object().shape({
   classId: Yup.number()
     .integer('Class ID must be an integer')
     .required('Class ID is required'),
-
-  // imagePath será tratado pelo multer, portanto não incluímos aqui
 });
 
 export const editStudentSchema = Yup.object().shape({
@@ -23,6 +21,10 @@ export const editStudentSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email format'),
 
   classId: Yup.number().integer('Class ID must be an integer'),
+});
 
-  // imagePath será tratado pelo multer, portanto não incluímos aqui
+export const importCsvSchema = Yup.object().shape({
+  email: Yup.string()
+    .email('Invalid email format')
+    .required('Email is required'),
 });
