@@ -203,5 +203,3 @@ Para mais informações, sugestões ou dúvidas, entre em contato:
 - **GitHub:** [seu-usuario](https://github.com/seu-usuario)
 
 ---
-
-*Este README foi gerado com a ajuda do ChatGPT.*
