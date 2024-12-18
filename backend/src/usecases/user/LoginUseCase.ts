@@ -33,6 +33,7 @@ export class LoginUseCase {
     const token = AuthService.generateToken({
       userId: user.id,
       isAdmin: user.isAdmin,
+      email: user.email,
     });
 
     return token;

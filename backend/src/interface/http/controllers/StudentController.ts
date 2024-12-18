@@ -10,9 +10,11 @@ import { ImageService } from '../../../infra/services/ImageService';
 import {
   editStudentSchema,
   createStudentSchema,
+  importCsvSchema,
 } from '../validators/studentValidator';
 import { HttpError } from '../errors/HttpError';
 import * as Yup from 'yup';
+import { queue } from '../../../infra/queues/studentImportQueue';
 
 export class StudentController {
   static list = async (
@@ -64,6 +66,7 @@ export class StudentController {
       await createStudentSchema.validate(req.body, { abortEarly: false });
 
       const { name, email, classId } = req.body;
+
       let imagePath: string | null = null;
 
       if (req.file) {
@@ -249,6 +252,48 @@ export class StudentController {
 
       res.status(200).json({ message: 'Student deleted successfully' });
     } catch (error) {
+      next(error);
+    }
+  };
+
+  static import = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      // Validação de entrada
+      await importCsvSchema.validate(req.body, { abortEarly: false });
+
+      const { email } = req.body;
+
+      // Declare csvPath como string
+      let csvPath: string;
+
+      if (req.file) {
+        csvPath = req.file.path; // Garantir que csvPath é uma string
+      } else {
+        // Lançar erro se req.file não existir
+        throw new HttpError('Arquivo CSV é obrigatório', 400);
+      }
+
+      console.log('CSV Path:', csvPath);
+      console.log('User Email:', email);
+
+      // Enfileirar o processamento do arquivo
+      const job = await queue.add('import-students', {
+        filePath: csvPath,
+        userEmail: email,
+      });
+
+      console.log('Job added:', job.id);
+
+      res.status(200).json({
+        message: 'Arquivo enfileirado para processamento',
+        jobId: job.id,
+      });
+    } catch (error) {
+      console.error('Error adding job to queue:', error);
       next(error);
     }
   };

@@ -88,4 +88,12 @@ export class SequelizeStudentRepository implements IStudentRepository {
     await student.destroy(); // Soft delete
     return true;
   }
+
+  async createMany(
+    students: Array<
+      Omit<StudentAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
+    >
+  ): Promise<Student[]> {
+    return Student.bulkCreate(students);
+  }
 }
