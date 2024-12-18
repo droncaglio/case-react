@@ -1,6 +1,6 @@
 // src/usecases/student/CreateStudentUseCase.ts
 import { IStudentRepository } from '../../domain/repositories/IStudentRepository';
-import  Student from '../../database/models/Student';
+import Student from '../../database/models/Student';
 
 export interface CreateStudentInput {
   name: string;

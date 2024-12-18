@@ -1,7 +1,6 @@
 // src/usecases/student/EditStudentUseCase.ts
 import { IStudentRepository } from '../../domain/repositories/IStudentRepository';
-import { StudentAttributes } from '../../database/models/Student';
-import  Student from '../../database/models/Student';
+import Student from '../../database/models/Student';
 
 export interface EditStudentInput {
   id: number;

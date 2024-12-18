@@ -17,7 +17,22 @@ export interface ListStudentsOutput {
 export interface IStudentRepository {
   findAll(input: ListStudentsInput): Promise<ListStudentsOutput>;
   findById(id: number): Promise<Student | null>;
-  create(student: Omit<StudentAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>): Promise<Student>;
-  update(id: number, student: Partial<Omit<StudentAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>>): Promise<Student | null>;
+  create(
+    student: Omit<
+      StudentAttributes,
+      'id' | 'createdAt' | 'updatedAt' | 'deletedAt'
+    >
+  ): Promise<Student>;
+  update(
+    id: number,
+    student: Partial<
+      Omit<StudentAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
+    >
+  ): Promise<Student | null>;
   softDelete(id: number): Promise<boolean>;
+  createMany(
+    students: Array<
+      Omit<StudentAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
+    >
+  ): Promise<Student[]>;
 }

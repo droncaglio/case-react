@@ -14,21 +14,26 @@ export class LoginUseCase {
   async execute({ email, password }: LoginInput): Promise<string> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      const error: any = new Error('Invalid email or password');
+      const error = new Error('Invalid email or password') as Error & {
+        status?: number;
+      };
       error.status = 401;
       throw error;
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      const error: any = new Error('Invalid email or password');
+      const error = new Error('Invalid email or password') as Error & {
+        status?: number;
+      };
       error.status = 401;
       throw error;
     }
 
     const token = AuthService.generateToken({
       userId: user.id,
-      isAdmin: user.isAdmin
+      isAdmin: user.isAdmin,
+      email: user.email,
     });
 
     return token;

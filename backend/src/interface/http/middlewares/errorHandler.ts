@@ -1,14 +1,38 @@
-import { Request, Response, NextFunction } from 'express';
+// src/interface/http/middlewares/errorHandler.ts
+import { NextFunction, Request, Response } from 'express';
+import { HttpError } from '../errors/HttpError';
 
-interface HttpError extends Error {
-  status?: number;
-}
+/**
+ * Middleware de tratamento de erros para Express.
+ * Captura erros lançados nas rotas e retorna uma resposta apropriada.
+ *
+ * @param err - O erro que foi lançado.
+ * @param req - Objeto de requisição do Express.
+ * @param res - Objeto de resposta do Express.
+ * @param next - Função para passar o erro para o próximo middleware.
+ */
+export const errorHandler = (
+  err: Error & { status?: number },
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (err instanceof HttpError) {
+    res.status(err.status).json({ message: err.message });
+    return;
+  }
 
-export function errorHandler(err: HttpError, req: Request, res: Response, next: NextFunction) {
-  console.error(err); // Log do erro para debug
+  if (err.status) {
+    res.status(err.status).json({ message: err.message });
+    return;
+  }
 
-  const status = err.status || 500;
-  const message = err.message || 'Internal Server Error';
+  if (process.env.NODE_ENV === 'production') {
+    res.status(500).json({ message: 'Internal Server Error' });
+    return;
+  }
 
-  res.status(status).json({ message });
-}
+  next(err);
+
+  res.status(500).json({ message: err.message, stack: err.stack });
+};

@@ -14,13 +14,17 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     console.log('saving file ' + file.originalname);
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     const ext = path.extname(file.originalname);
     cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-  }
+  },
 });
 
-const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (
+  req: Express.Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
   // Aceita apenas imagens
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
@@ -31,21 +35,78 @@ const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.
 
 const upload = multer({ storage, fileFilter });
 
+const uploadCsvPath = path.join(__dirname, '../../../../uploads/csv');
+
+// Configuração do Multer para upload de arquivos CSV
+const storageCSV = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadCsvPath); // Defina o caminho para a pasta segura
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  },
+});
+
+const csvFileFilter = (
+  req: Express.Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
+  if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Somente arquivos CSV são permitidos'));
+  }
+};
+
+const uploadCSV = multer({ storage: storageCSV, fileFilter: csvFileFilter });
+
 const studentRouter = Router();
 
 // Rota para listar alunos
-studentRouter.get('/', ensureAuthenticated, asyncHandler(StudentController.list));
+studentRouter.get(
+  '/',
+  ensureAuthenticated,
+  asyncHandler(StudentController.list)
+);
 
 // Rota para criar aluno (com upload de imagem)
-studentRouter.post('/', ensureAuthenticated, upload.single('image'), asyncHandler(StudentController.create));
+studentRouter.post(
+  '/',
+  ensureAuthenticated,
+  upload.single('image'),
+  asyncHandler(StudentController.create)
+);
 
 // Rota para editar aluno (com upload de imagem opcional)
-studentRouter.put('/:id', ensureAuthenticated, upload.single('image'), asyncHandler(StudentController.edit));
+studentRouter.put(
+  '/:id',
+  ensureAuthenticated,
+  upload.single('image'),
+  asyncHandler(StudentController.edit)
+);
 
 // Rota para visualizar aluno
-studentRouter.get('/:id', ensureAuthenticated, asyncHandler(StudentController.view));
+studentRouter.get(
+  '/:id',
+  ensureAuthenticated,
+  asyncHandler(StudentController.view)
+);
 
 // Rota para deletar aluno
-studentRouter.delete('/:id', ensureAuthenticated, asyncHandler(StudentController.delete));
+studentRouter.delete(
+  '/:id',
+  ensureAuthenticated,
+  asyncHandler(StudentController.delete)
+);
+
+// rota para importar alunos
+studentRouter.post(
+  '/import',
+  ensureAuthenticated,
+  uploadCSV.single('file'),
+  asyncHandler(StudentController.import)
+);
 
 export default studentRouter;

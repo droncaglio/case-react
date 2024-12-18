@@ -1,5 +1,9 @@
 // src/infra/db/repositories/SequelizeStudentRepository.ts
-import { IStudentRepository, ListStudentsInput, ListStudentsOutput } from '../../../domain/repositories/IStudentRepository';
+import {
+  IStudentRepository,
+  ListStudentsInput,
+  ListStudentsOutput,
+} from '../../../domain/repositories/IStudentRepository';
 import Student, { StudentAttributes } from '../../../database/models/Student';
 import Class from '../../../database/models/Class';
 import { Op } from 'sequelize';
@@ -10,18 +14,20 @@ export class SequelizeStudentRepository implements IStudentRepository {
     const limit = 10;
     const offset = (page - 1) * limit;
 
-    const whereCondition: any = {};
+    const whereCondition: { name?: { [Op.iLike]: string } } = {};
     if (query) {
       whereCondition.name = { [Op.iLike]: `%${query}%` };
     }
 
     const { rows, count } = await Student.findAndCountAll({
       where: whereCondition,
-      include: [{
-        model: Class,
-        as: 'class',
-        attributes: ['id', 'name']
-      }],
+      include: [
+        {
+          model: Class,
+          as: 'class',
+          attributes: ['id', 'name'],
+        },
+      ],
       order: [['name', 'ASC']],
       limit,
       offset,
@@ -34,26 +40,38 @@ export class SequelizeStudentRepository implements IStudentRepository {
       data: rows,
       total: count,
       page,
-      totalPages
+      totalPages,
     };
   }
 
   async findById(id: number): Promise<Student | null> {
     return Student.findByPk(id, {
-      include: [{
-        model: Class,
-        as: 'class',
-        attributes: ['id', 'name']
-      }],
+      include: [
+        {
+          model: Class,
+          as: 'class',
+          attributes: ['id', 'name'],
+        },
+      ],
       paranoid: true,
     });
   }
 
-  async create(student: Omit<StudentAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>): Promise<Student> {
+  async create(
+    student: Omit<
+      StudentAttributes,
+      'id' | 'createdAt' | 'updatedAt' | 'deletedAt'
+    >
+  ): Promise<Student> {
     return Student.create(student);
   }
 
-  async update(id: number, student: Partial<Omit<StudentAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>>): Promise<Student | null> {
+  async update(
+    id: number,
+    student: Partial<
+      Omit<StudentAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
+    >
+  ): Promise<Student | null> {
     const existingStudent = await Student.findByPk(id);
     if (!existingStudent) {
       return null;
@@ -69,5 +87,13 @@ export class SequelizeStudentRepository implements IStudentRepository {
     }
     await student.destroy(); // Soft delete
     return true;
+  }
+
+  async createMany(
+    students: Array<
+      Omit<StudentAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
+    >
+  ): Promise<Student[]> {
+    return Student.bulkCreate(students);
   }
 }
